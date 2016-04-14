@@ -1,0 +1,14 @@
+CREATE TABLE NinaKendosa.Clients (
+ID INT NOT NULL AUTO_INCREMENT,
+Nom VARCHAR(50),
+Prenom VARCHAR(50),
+Email VARCHAR(50),
+Password VARCHAR(50),
+Commune VARCHAR (50),
+Telephone1 INT,
+Telephone2 INT,
+Adresse VARCHAR(50),
+Pays VARCHAR(50),
+Code INT,
+ PRIMARY KEY(ID)
+ );
