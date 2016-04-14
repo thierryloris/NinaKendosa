@@ -1,44 +1,45 @@
 <?php
 header("Content-type: application/json");
+session_start();
 
+    try
+    {
+	$db = new PDO ('mysql:host=localhost;dbname=NinaKendosa', 'root', 'root');
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$db->exec("SET CHARACTER SET utf8");
+    }
+    
+    catch (EXception $e)
+    {
+	die('Erreur : ' . $e->getMessage());
+    }
 
-function connecter()
+$email = $_POST['pseudo'];
+$password = $_POST['mdp'];
+
+$req = $db->prepare("SELECT * FROM Clients WHERE Email = :pseudo AND Password = :mdp");
+$req->bindParam(":pseudo", $email);
+$req->bindParam(":mdp", $password);
+$req->execute();
+$result = $req->fetch(PDO::FETCH_ASSOC);
+
+$_SESSION['Nom'] = $result['Nom'];
+$_SESSION['Prenom'] = $result['Prenom'];
+$_SESSION['Password'] = $result['Password'];
+$_SESSION['Email'] = $result['Email'];
+$_SESSION['Commune'] = $result['Commune'];
+$_SESSION['Telephone1'] = $result['Telephone1'];
+$_SESSION['Telephone2'] = $result['Telephone2'];
+
+if(!$result)
 {
-    $connect=@mysql_connect("localhost", "root", "root");
-    if(!$connect)
-    {
-    echo "Erreur de connexion a la base de donnees";
-    exit;
-    }
-    $select=@mysql_select_db('NinaKendosa');   
-    if(!$select)
-    {
-    echo "Erreur de connexion a la base de donnees";
-    exit;
-    }
+ $erreur = 0;
 }
-connecter();
-
-$email=$_POST['Email'];
-$email= strtolower($email);
-$mdp=$_POST['Password'];
-$nom=$_POST['Nom'];
-$prenom=$_POT['Prenom'];
-$ville=$_POST['Commun'];
-$telehpone=$_POST['Telephone1'];
-$telephone2=$_POST['Telephone2'];
-
-$query="SELECT * FROM `NinaKendosa.Clients` WHERE `Email` LIKE '$email' AND `mdp` LIKE '$mdp'";
- $result=mysql_query($query);
- $num=mysql_num_rows($result);
- $row=mysql_fetch_row($result);
- $id=$row[0];
- $nom=$row[1];
-
-if($num !=1){
-    $erreur=0;
-}else{
-    $erreur=1;
+else
+{
+ $erreur = 1;
 }
 
-echo '{  "erreur":'.$erreur.', "Nom":"'.$nom.'", "Prenom":"'.$prenom.'", "Email":"'.$email.'", "Commune":"'.$ville.'", "Telephone1":"'.$telephone.'", "Telephone2":"'.$telephone2.'", "Mdp":"'.$mdp.'"  }';
+$result['erreur'] = $erreur;
+echo json_encode($result);
+?>
